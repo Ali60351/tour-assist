@@ -53,9 +53,7 @@
         <v-icon>menu</v-icon>
       </v-btn>
     </v-toolbar>
-    <v-content>
-      <nuxt />
-    </v-content>
+    <nuxt />
     <v-navigation-drawer
       temporary
       :right="right"

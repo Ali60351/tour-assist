@@ -1,5 +1,6 @@
 <template>
-  <section class="restaurants">
+<v-content class="restaurants">
+  <section>
     <v-container grid-list-md text-xs-center>
           <v-layout row wrap>
             <v-flex xs12>
@@ -126,6 +127,8 @@
           </v-layout>
         </v-container>
   </section>
+</v-content>
+  
 </template>
 
 <script>
@@ -370,7 +373,7 @@ export default {
 </script>
 
 <style>
-.content {
+.restaurants {
     background-image: url('~/static/2b.png');
     background-repeat: no-repeat;
     background-size: cover;

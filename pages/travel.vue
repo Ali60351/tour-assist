@@ -1,5 +1,6 @@
 <template>
-  <section class="travel">
+<v-content class="travel">
+  <section>
     <v-container grid-list-md text-xs-center>
           <v-layout row wrap>
             <v-flex xs12>
@@ -117,6 +118,8 @@
           </v-layout>
         </v-container>
   </section>
+</v-content>
+  
 </template>
 
 <script>
@@ -342,7 +345,7 @@ export default {
 </script>
 
 <style>
-.content {
+.travel {
     background-image: url('~/static/5b.png');
     background-repeat: no-repeat;
     background-size: cover;
