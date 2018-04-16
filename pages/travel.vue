@@ -23,7 +23,7 @@
                           <v-slider step="10000" @mouseup="filterResults" label="Max Price" :max="200000" v-model="travelFilters.price"></v-slider>
                         </v-flex>
                         <v-flex xs2>
-                          <v-text-field @keyup="filterResults" disabled="true" v-model="travelFilters.price"></v-text-field>
+                          <v-text-field @keyup="filterResults" :disabled=true v-model="travelFilters.price"></v-text-field>
                         </v-flex>
                       </v-layout>
                     </v-container>
@@ -328,17 +328,35 @@ export default {
   },
   methods: {
     filterResults: function() {
-      this.filteredAttractions = this.attractions.filter(post => {
-        if (post.title.toLowerCase().includes(this.search.toLowerCase())) {
-          return true;
-        }
+      this.filteredTravel = this.travel.filter(post => {
+          if (this.travelFilters.price > post.price) {
+            if (
+              this.travelFilters.class.includes(post.class) ||
+              this.travelFilters.class.length === 0
+            ) {
+              if (
+                this.travelFilters.airline.includes(post.airline) ||
+                this.travelFilters.airline.length === 0
+              ) {
+                if (
+                  post.source.toLowerCase().includes(this.search.toLowerCase())
+                ) {
+                  return true;
+                }
 
-        if (post.location.toLowerCase().includes(this.search.toLowerCase())) {
-          return true;
-        }
+                if (
+                  post.destination
+                    .toLowerCase()
+                    .includes(this.search.toLowerCase())
+                ) {
+                  return true;
+                }
+              }
+            }
+          }
 
-        return false;
-      });
+          return false;
+        });
     }
   }
 };
