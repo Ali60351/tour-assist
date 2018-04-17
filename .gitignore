@@ -12,3 +12,9 @@ dist
 
 yarn\.lock
 yarn-error.log
+
+package-lock\.json
+
+server/models/tour-assist-admin\.json
+
+server/models/tour-assist-client\.json

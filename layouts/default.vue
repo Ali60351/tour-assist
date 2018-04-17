@@ -42,7 +42,7 @@
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-menu bottom offset-y>
-          <v-btn slot="activator" flat><v-icon left dark>add_box</v-icon>Add</v-btn>
+          <v-btn v-if="loggedIn" slot="activator" flat><v-icon left dark>add_box</v-icon>Add</v-btn>
           <v-list>
             <v-list-tile @click="addAccomodationDialog = true">
               <v-icon style="margin-right: 10px" dark>local_hotel</v-icon><v-list-tile-title>Accommodation</v-list-tile-title>
@@ -55,8 +55,16 @@
             </v-list-tile>
           </v-list>
         </v-menu>
-        <v-btn @click="loginDialog = true" flat><v-icon left dark>input</v-icon>Login</v-btn>
-        <v-btn @click="signUpDialog = true" flat><v-icon left dark>launch</v-icon>Sign Up</v-btn>
+        <v-btn v-if="!loggedIn" @click="loginDialog = true" flat><v-icon left dark>input</v-icon>Login</v-btn>
+        <v-btn v-if="!loggedIn" @click="signUpDialog = true" flat><v-icon left dark>launch</v-icon>Sign Up</v-btn>
+        <v-menu v-if="loggedIn" bottom offset-y>
+          <v-btn slot="activator" flat><v-icon left dark>person</v-icon>{{ username }}</v-btn>
+          <v-list>
+            <v-list-tile @click="loggedIn = false">
+              <v-icon style="margin-right: 10px" dark>cloud_off</v-icon><v-list-tile-title>Log Out</v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
       </v-toolbar-items>
     </v-toolbar>
     <v-navigation-drawer
@@ -109,17 +117,20 @@
           <v-container grid-list-md>
             <v-layout row wrap>
               <v-flex xs12>
-                <v-text-field label="Username" required></v-text-field>
+                <v-text-field v-model="signUpUsername" label="Username" required></v-text-field>
               </v-flex>
               <v-flex xs12>
-                <v-text-field label="Email" required></v-text-field>
+                <v-text-field v-model="signUpEmail" label="Email" required></v-text-field>
               </v-flex>
               <v-flex xs12>
-                <v-text-field label="Password" type="password" required></v-text-field>
+                <v-text-field v-model="signUpPassword" label="Password" type="password" required></v-text-field>
               </v-flex>
               <v-flex xs12>
-                <v-text-field label="Repeat Password" type="password" required></v-text-field>
+                <v-text-field v-model="signUpRepeatPass" label="Repeat Password" type="password" required></v-text-field>
               </v-flex>
+              <v-alert type="error" :value="errorflag">
+                {{ errorMessage }}
+              </v-alert>
             </v-layout>
           </v-container>
           <small>*indicates required field</small>
@@ -127,7 +138,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" flat @click.native="signUpDialog = false">Cancel</v-btn>
-          <v-btn color="primary" flat @click.native="signUpDialog = false">Sign Up</v-btn>
+          <v-btn color="primary" flat @click="signUp">Sign Up</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -311,6 +322,8 @@
 </template>
 
 <script>
+  var axios = require('axios');
+
   export default {
     data() {
       return {
@@ -324,11 +337,19 @@
           { icon: 'local_hotel', title: 'Accommodation', to: '/accommodation' },
           { icon: 'flight_takeoff', title: 'Travel', to: '/travel' }
         ],
+        username: 'Ali60351',
         miniVariant: true,
         right: true,
         rightDrawer: false,
         title: 'Tour Assist',
         loginDialog: false,
+        signUpUsername: '',
+        signUpEmail: '',
+        signUpPassword: '',
+        loggedIn: true,
+        signUpRepeatPass: '',
+        errorflag: false,
+        errorMessage: '',
         signUpDialog: false,
         addAttractionDialog: false,
         addRestaurantDialog: false,
@@ -336,6 +357,29 @@
         accommodationTypes: ['Hotel', 'Rental House'],
         cuisine: ['Italian', 'Thai', 'Japanese'],
         e1: []
+      }
+    },
+    methods: {
+      signUp: function () {
+        this.errorflag = false;
+
+        if (this.signUpPassword === this.signUpRepeatPass) {
+          var fd = {
+            'username': this.signUpUsername,
+            'email': this.signUpEmail,
+            'password': this.signUpPassword
+          };
+
+          axios.post('http://127.0.0.1:3000/signup', fd).then((res) => {
+            console.log(res.status);
+            
+            if(res.data.message.toLowerCase().indexOf('error') !== -1)
+            {
+              this.errorMessage = res.data.obj.message;
+              this.errorflag = true;
+            }
+          })
+        }
       }
     }
   }
