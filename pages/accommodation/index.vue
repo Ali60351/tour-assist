@@ -23,7 +23,7 @@
                         <v-slider step="1000" @mouseup="filterResults" label="Max Price" :max="50000" v-model="accommodationFilters.price"></v-slider>
                       </v-flex>
                       <v-flex xs2>
-                        <v-text-field @keyup="filterResults" disabled="true" v-model="accommodationFilters.price"></v-text-field>
+                        <v-text-field @keyup="filterResults" :disabled="true" v-model="accommodationFilters.price"></v-text-field>
                       </v-flex>
                     </v-layout>
                   </v-container>
@@ -52,7 +52,7 @@
           <v-flex xs12 sm6 md4 lg3 xl2 v-for="item in filteredAccommodation" :key="item.title">
             <v-card>
               <v-card-media
-                v-bind:src="item.image"
+                v-bind:src="item.imgUrl"
                 height="200px"
               >
               </v-card-media>
@@ -81,78 +81,11 @@
 </template>
 
 <script>
+var axios = require('axios');
+
 export default {
   data () {
     return {
-      attractions: [
-        {
-          title: 'Mount Fuji',
-          location: 'Tokyo, Japan',
-          image: require('@/static/fuji.jpg')
-        },
-        {
-          title: 'Hiroshima Peace Memorial',
-          location: 'Hiroshima, Japan',
-          image: require('@/static/hiroshima_peace_memorial.jpg')
-        },
-        {
-          title: 'Osaka Aquarium',
-          location: 'Osaka, Japan',
-          image: require('@/static/Osaka_Aquarium.jpg')
-        },
-        {
-          title: 'Tokyo Skytree',
-          location: 'Tokyo, Japan',
-          image: require('@/static/tokyo_skytree.jpg')
-        },
-        {
-          title: 'Tokyo Tower',
-          location: 'Tokyo, Japan',
-          image: require('@/static/tokyo_tower.jpg')
-        }
-      ],
-      restaurants: [
-        {
-          title: 'Pai Thai',
-          location: 'Dubai, United Arab Emirates (UAE)',
-          features: ['Delivery'],
-          rating: 4,
-          cuisine: ['Thai', 'SE Asian'],
-          image: require('@/static/paithai.jpg')
-        },
-        {
-          title: 'Nusr-Et',
-          location: 'Dubai, United Arab Emirates (UAE)',
-          features: [],
-          rating: 5,
-          cuisine: ['Turkish'],
-          image: require('@/static/nusret.jpg')
-        },
-        {
-          title: 'Zuma',
-          location: 'Dubai, United Arab Emirates (UAE)',
-          features: [],
-          rating: 4,
-          cuisine: ['Japanese'],
-          image: require('@/static/zuma.jpg')
-        },
-        {
-          title: 'Solo Bistronomia & Vino Bar',
-          location: 'Dubai, United Arab Emirates (UAE)',
-          features: [],
-          rating: 5,
-          cuisine: ['Italian'],
-          image: require('@/static/solo.jpg')
-        },
-        {
-          title: 'La Petite Maison',
-          location: 'Dubai, United Arab Emirates (UAE)',
-          features: [],
-          rating: 4,
-          cuisine: ['French'],
-          image: require('@/static/lapetit.jpg')
-        }
-      ],
       accommodation: [
         {
           title: 'Holiday Inn Express Dubai Airport',
@@ -195,33 +128,6 @@ export default {
           image: require('@/static/Gloria_Hotel.png')
         }
       ],
-      travel: [
-        {
-          source: 'Lahore, Pakistan',
-          destination: 'Tokyo, Japan',
-          airline: 'Emirates Airlines',
-          class: 'Business',
-          price: 50000,
-          image: require('@/static/emirates.png')
-        },
-        {
-          source: 'Lahore, Pakistan',
-          destination: 'Tokyo, Japan',
-          airline: 'Qatar Airlines',
-          class: 'First Class',
-          price: 100000,
-          image: require('@/static/qatar.png')
-        },
-        {
-          source: 'Lahore, Pakistan',
-          destination: 'Dubai, United Arab Emirates (UAE)',
-          airline: 'Emirates Airlines',
-          class: 'Economy',
-          price: 150000,
-          image: require('@/static/emirates.png')
-        }
-      ],
-      filteredTravel: [],
       filteredAccommodation: [
         {
           title: 'Holiday Inn Express Dubai Airport',
@@ -264,40 +170,25 @@ export default {
           image: require('@/static/Gloria_Hotel.png')
         }
       ],
-      filteredRestaurants: [],
-      filteredAttractions: [
-        {
-          title: 'Mount Fuji',
-          location: 'Tokyo, Japan',
-          image: require('@/static/fuji.jpg')
-        },
-        {
-          title: 'Hiroshima Peace Memorial',
-          location: 'Hiroshima, Japan',
-          image: require('@/static/hiroshima_peace_memorial.jpg')
-        },
-        {
-          title: 'Osaka Aquarium',
-          location: 'Osaka, Japan',
-          image: require('@/static/Osaka_Aquarium.jpg')
-        },
-        {
-          title: 'Tokyo Skytree',
-          location: 'Tokyo, Japan',
-          image: require('@/static/tokyo_skytree.jpg')
-        },
-        {
-          title: 'Tokyo Tower',
-          location: 'Tokyo, Japan',
-          image: require('@/static/tokyo_tower.jpg')
-        }
-      ],
       search: '',
       accommodationFilters: {
         price: 50000,
         features: []
       }
     };
+  },
+  asyncData () {
+      return new Promise((resolve, reject) => {
+          axios.get('http://127.0.0.1:3000/fetchAccomodations').then(res => {
+              resolve({
+                  accommodation: res.data,
+                  filteredAccommodation: res.data
+              })
+          }).catch(err => {
+              console.log(err);
+              reject(arr);
+          })
+      });
   },
   methods: {
     filterResults: function() {
