@@ -41,8 +41,8 @@
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>
-        <v-menu bottom offset-y>
-          <v-btn v-if="loggedIn" slot="activator" flat><v-icon left dark>add_box</v-icon>Add</v-btn>
+        <v-menu v-if="loggedIn" bottom offset-y>
+          <v-btn slot="activator" flat><v-icon left dark>add_box</v-icon>Add</v-btn>
           <v-list>
             <v-list-tile @click="addAccomodationDialog = true">
               <v-icon style="margin-right: 10px" dark>local_hotel</v-icon><v-list-tile-title>Accommodation</v-list-tile-title>
@@ -92,10 +92,10 @@
           <v-container grid-list-md>
             <v-layout row wrap>
               <v-flex xs12>
-                <v-text-field label="Username or Email" required></v-text-field>
+                <v-text-field v-model="loginEmail" label="Email" required></v-text-field>
               </v-flex>
               <v-flex xs12>
-                <v-text-field label="Password" type="password" required></v-text-field>
+                <v-text-field v-model="loginPassword" label="Password" type="password" required></v-text-field>
               </v-flex>
             </v-layout>
           </v-container>
@@ -103,8 +103,8 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" flat @click.native="signUpDialog = false">Cancel</v-btn>
-          <v-btn color="primary" flat @click.native="signUpDialog = false">Log In</v-btn>
+          <v-btn color="primary" flat @click="loginDialog = false">Cancel</v-btn>
+          <v-btn color="primary" flat @click="login">Log In</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -343,6 +343,8 @@
         rightDrawer: false,
         title: 'Tour Assist',
         loginDialog: false,
+        loginEmail: '',
+        loginPassword: '',
         signUpUsername: '',
         signUpEmail: '',
         signUpPassword: '',
@@ -375,49 +377,90 @@
 
           axios.post('http://127.0.0.1:3000/signup', fd).then((res) => {
             console.log(res.status);
-            
-            if(res.data.message.toLowerCase().indexOf('error') !== -1)
+
+            if(res.data.message != null) 
             {
-              this.errorMessage = res.data.obj.message;
-              this.errorflag = true;
+              if(res.data.message.toLowerCase().indexOf('error') !== -1)
+              {
+                this.errorMessage = res.data.obj.message;
+                this.errorflag = true;
+              }
+            }
+            else
+            {
+              this.signUpDialog = false;
             }
           })
         }
       },
-      addAttraction: function () {
-        this.errorflag = false;
-        
+      login: function() {
         var fd = {
-          name: this.addAttractionName,
-          location: this.addAttractionLocation,
-          image: this.selectedImage
+          email: this.loginEmail,
+          password: this.loginPassword
         }
 
-        axios.post('http://127.0.0.1:3000/test', fd).then((res) => {
+        axios.post('http://127.0.0.1:3000/login', fd).then((res) => {
             console.log(res.status);
             
-            if(res.data.message.toLowerCase().indexOf('error') !== -1)
+            if(res.data.message != null) 
             {
-              this.errorMessage = res.data.obj.message;
-              this.errorflag = true;
+              if(res.data.message.toLowerCase().indexOf('error') !== -1)
+              {
+                this.errorMessage = res.data.obj.message;
+                this.errorflag = true;
+              }
+              else
+              {
+                this.loggedIn = true;
+                this.username = this.loginEmail;
+                this.loginDialog = false;
+              }
             }
           })
+      },
+      readFile : function ()
+      {
+        return new Promise((resolve, reject) => {
+          var reader = new FileReader();
+
+          reader.onload = function() {
+            var buffer = reader.result;
+            console.log(buffer);
+            var base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
+            resolve(base64String);
+          }
+
+          reader.readAsArrayBuffer(this.selectedImage);
+        })
+      },
+      addAttraction: function () {
+        this.errorflag = false;
+
+        this.readFile().then(enc => {
+          var fd = {
+            title: this.addAttractionName,
+            location: this.addAttractionLocation,
+            image: enc
+          };
+
+          axios.post('http://127.0.0.1:3000/addAttraction', fd).then((res) => {
+            console.log(res.status);
+
+            if(res.data.message != null) 
+            {
+              if(res.data.message.toLowerCase().indexOf('error') !== -1)
+              {
+                console.log(res.data);
+                this.errorMessage = res.data.obj.message;
+                this.errorflag = true;
+              }
+            }
+          })
+        })
       },
       onImageChange: function(event) {
         var buffer;
         this.selectedImage = event.target.files[0];
-        
-        console.log(this.selectedImage);
-        
-        var reader = new FileReader();
-        reader.onload = function(){
-          var buffer = reader.result;
-          console.log(buffer);
-          var base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
-          console.log(base64String);
-        };
-
-        reader.readAsArrayBuffer(this.selectedImage);
       }
     }
   }

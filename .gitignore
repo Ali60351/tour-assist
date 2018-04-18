@@ -18,3 +18,5 @@ package-lock\.json
 server/models/tour-assist-admin\.json
 
 server/models/tour-assist-client\.json
+
+server/controllers/imgur-cred\.json
