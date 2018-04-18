@@ -1,3 +1,5 @@
+//jshint esversion:6
+
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
@@ -35,6 +37,13 @@ async function start() {
   console.log('Server listening on http://' + host + ':' + port); // eslint-disable-line no-console
   user.initialize();
 }
+
+app.post('/test', (req, res) => {
+  console.log(req.body);
+  console.log(req.body.image);
+  res.status = 200;
+  res.json({});
+});
 
 app.post('/signup', user.signup);
 app.get('/fetchAttractions', attraction.getAllAttractions);

@@ -151,17 +151,17 @@
           <v-container grid-list-md>
             <v-layout row wrap>
               <v-flex xs12>
-                <v-text-field label="Name" hint="Example: Burj Khalifa" required></v-text-field>
+                <v-text-field v-model="addAttractionName" label="Name" hint="Example: Burj Khalifa" required></v-text-field>
               </v-flex>
             </v-layout>
             <v-layout row wrap>
               <v-flex xs12>
-                <v-text-field label="City" hint="Example: Dubai" required></v-text-field>
+                <v-text-field v-model="addAttractionLocation" label="Location" hint="Example: Tokyo, Japan" required></v-text-field>
               </v-flex>
             </v-layout>
             <v-layout row wrap>
               <v-flex xs12>
-                <v-text-field label="Country" hint="Example: UAE" required></v-text-field>
+                <input @change="onImageChange" type="file" hint="Select Image" required/>
               </v-flex>
             </v-layout>
           </v-container>
@@ -170,7 +170,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" flat @click.native="addAttractionDialog = false">Close</v-btn>
-          <v-btn color="primary" flat @click.native="addAttractionDialog = false">Add</v-btn>
+          <v-btn color="primary" flat @click="addAttraction">Add</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -352,6 +352,9 @@
         errorMessage: '',
         signUpDialog: false,
         addAttractionDialog: false,
+        addAttractionName: '',
+        addAttractionLocation: '',
+        selectedImage: '',
         addRestaurantDialog: false,
         addAccomodationDialog: false,
         accommodationTypes: ['Hotel', 'Rental House'],
@@ -380,6 +383,41 @@
             }
           })
         }
+      },
+      addAttraction: function () {
+        this.errorflag = false;
+        
+        var fd = {
+          name: this.addAttractionName,
+          location: this.addAttractionLocation,
+          image: this.selectedImage
+        }
+
+        axios.post('http://127.0.0.1:3000/test', fd).then((res) => {
+            console.log(res.status);
+            
+            if(res.data.message.toLowerCase().indexOf('error') !== -1)
+            {
+              this.errorMessage = res.data.obj.message;
+              this.errorflag = true;
+            }
+          })
+      },
+      onImageChange: function(event) {
+        var buffer;
+        this.selectedImage = event.target.files[0];
+        
+        console.log(this.selectedImage);
+        
+        var reader = new FileReader();
+        reader.onload = function(){
+          var buffer = reader.result;
+          console.log(buffer);
+          var base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
+          console.log(base64String);
+        };
+
+        reader.readAsArrayBuffer(this.selectedImage);
       }
     }
   }

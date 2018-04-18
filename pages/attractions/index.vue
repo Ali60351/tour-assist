@@ -55,8 +55,6 @@ export default {
   asyncData () {
       return new Promise((resolve, reject) => {
           axios.get('http://127.0.0.1:3000/fetchAttractions').then(res => {
-              var arr = [];
-
               resolve({
                   filteredAttractions: res.data,
                   attractions: res.data
