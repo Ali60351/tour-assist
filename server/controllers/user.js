@@ -1,6 +1,10 @@
 const model = require('../models/model.js');
 
 module.exports = {
+    initialize: function() {
+        model.initialize();
+    },
+
     signup: function(req, res) {
         username = req.body.username;
         email = req.body.email;
