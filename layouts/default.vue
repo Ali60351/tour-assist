@@ -199,7 +199,8 @@
             <v-layout row wrap>
               <v-flex xs12>
                 <p>Select Rating</p>
-                <star-rating text-class="starLabel" active-color="#7DB8DE" inactive-color="#333" :star-size="20" :increment="0.5"></star-rating>
+                <v-icon v-for="i in rating" :key="i">star</v-icon>
+                <v-slider v-model="rating" min="1" max="5" thumb-label step="1" ticks></v-slider>
               </v-flex>
             </v-layout>
             <v-layout row wrap>
@@ -246,7 +247,8 @@
             <v-layout row wrap>
               <v-flex xs12>
                 <p>Select Rating</p>
-                <star-rating text-class="starLabel" active-color="#7DB8DE" inactive-color="#333" :star-size="20" :increment="0.5"></star-rating>
+                <v-icon v-for="i in rating" :key="i">star</v-icon>
+                <v-slider v-model="rating" min="1" max="5" thumb-label step="1" ticks></v-slider>
               </v-flex>
             </v-layout>
             <v-layout row wrap>
@@ -339,6 +341,7 @@
         ],
         username: 'Ali60351',
         miniVariant: true,
+        rating: 1,
         right: true,
         rightDrawer: false,
         title: 'Tour Assist',
@@ -378,7 +381,7 @@
           axios.post('http://127.0.0.1:3000/signup', fd).then((res) => {
             console.log(res.status);
 
-            if(res.data.message != null) 
+            if(res.data.message != null)
             {
               if(res.data.message.toLowerCase().indexOf('error') !== -1)
               {
@@ -401,8 +404,8 @@
 
         axios.post('http://127.0.0.1:3000/login', fd).then((res) => {
             console.log(res.status);
-            
-            if(res.data.message != null) 
+
+            if(res.data.message != null)
             {
               if(res.data.message.toLowerCase().indexOf('error') !== -1)
               {
@@ -446,7 +449,7 @@
           axios.post('http://127.0.0.1:3000/addAttraction', fd).then((res) => {
             console.log(res.status);
 
-            if(res.data.message != null) 
+            if(res.data.message != null)
             {
               if(res.data.message.toLowerCase().indexOf('error') !== -1)
               {
@@ -461,6 +464,10 @@
       onImageChange: function(event) {
         var buffer;
         this.selectedImage = event.target.files[0];
+      },
+      ratingUpdate: function(index) {
+        this.whiteStars = index;
+        this.greyStars = 5 - index;
       }
     }
   }

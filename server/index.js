@@ -16,7 +16,7 @@ const travel = require('./controllers/travel.js');
 const image = require('./controllers/image.js');
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 app.set('port', port);
 
 // Import and Set Nuxt.js options
@@ -35,7 +35,7 @@ async function start() {
 
   // Give nuxt middleware to express
   app.use(nuxt.render);
-  
+
   // Listen the server
   app.listen(port, host);
   console.log('Server listening on http://' + host + ':' + port); // eslint-disable-line no-console
@@ -46,7 +46,7 @@ async function start() {
 app.post('/test', (req, res) => {
   console.log(req.body);
   uploadImage(req.body.image).then((link) => {
-    
+
 
     res.status = 200;
     res.json({});

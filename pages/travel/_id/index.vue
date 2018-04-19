@@ -9,13 +9,13 @@
               <h1 style="font-size: 2em"> {{ title }} </h1>
             </v-flex>
             <v-flex xs12 md4>
-              <h1 style="font-size: 1em"> {{ location }} </h1>
+              <h1 style="font-size: 1em"> {{ 'Source: ' + source }} </h1>
+            </v-flex>
+            <v-flex xs12 md4>
+              <h1 style="font-size: 1em"> {{ 'Destination: ' + destination }} </h1>
             </v-flex>
             <v-flex xs12 md4>
               <h1 style="font-size: 1em"> {{ 'Price: ' + price }} </h1>
-            </v-flex>
-            <v-flex xs12 md4>
-              <h1 style="font-size: 1em"> {{ 'Rating: ' + rating }} </h1>
             </v-flex>
           </v-layout>
         </v-flex>
@@ -57,7 +57,7 @@ var axios = require("axios");
 export default {
   asyncData(context) {
     return new Promise((resolve, reject) => {
-      var url = "http://127.0.0.1:3000/fetchAccomodations/" + context.params.id;
+      var url = "http://127.0.0.1:3000/fetchTravels/" + context.params.id;
       console.log(url);
       axios
         .get(url)
