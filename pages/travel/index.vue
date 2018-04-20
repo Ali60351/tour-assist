@@ -110,7 +110,9 @@
                 </v-card-title>
                 <v-card-actions>
                   <v-btn flat>Share</v-btn>
-                  <v-btn flat color="primary">Details</v-btn>
+                  <nuxt-link :to="'/travel/' + identify(item.title)">
+                    <v-btn flat color="primary">Details</v-btn>
+                  </nuxt-link>
                   <v-spacer></v-spacer>
                 </v-card-actions>
               </v-card>
@@ -123,6 +125,7 @@
 
 <script>
 var axios = require('axios');
+var camelCase = require('camel-case');
 
 export default {
   data () {
@@ -181,6 +184,9 @@ export default {
 
           return false;
         });
+    },
+    identify: function(str) {
+      return camelCase(str);
     }
   }
 };
