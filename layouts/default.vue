@@ -41,7 +41,7 @@
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>
-        <v-menu v-if="loggedIn" bottom offset-y>
+        <v-menu v-if="loggedIn && isBusinessUser" bottom offset-y>
           <v-btn slot="activator" flat><v-icon left dark>add_box</v-icon>Add</v-btn>
           <v-list>
             <v-list-tile @click="addAccomodationDialog = true">
@@ -60,7 +60,7 @@
         <v-menu v-if="loggedIn" bottom offset-y>
           <v-btn slot="activator" flat><v-icon left dark>person</v-icon>{{ username }}</v-btn>
           <v-list>
-            <v-list-tile @click="loggedIn = false">
+            <v-list-tile @click="loggedIn = false; isBusinessUser = false; $store.commit('unsetLogin');">
               <v-icon style="margin-right: 10px" dark>cloud_off</v-icon><v-list-tile-title>Log Out</v-list-tile-title>
             </v-list-tile>
           </v-list>
@@ -339,7 +339,7 @@
           { icon: 'local_hotel', title: 'Accommodation', to: '/accommodation' },
           { icon: 'flight_takeoff', title: 'Travel', to: '/travel' }
         ],
-        username: 'Ali60351',
+        username: 'ali60351@gmail.com',
         miniVariant: true,
         rating: 1,
         right: true,
@@ -352,6 +352,7 @@
         signUpEmail: '',
         signUpPassword: '',
         loggedIn: true,
+        isBusinessUser: true,
         signUpRepeatPass: '',
         errorflag: false,
         errorMessage: '',
@@ -417,6 +418,13 @@
                 this.loggedIn = true;
                 this.username = this.loginEmail;
                 this.loginDialog = false;
+                this.$store.commit('update', this.loginEmail);
+                this.$store.commit('setLogin');
+
+                if (this.loginEmail == 'ali60351@gmail.com')
+                {
+                  this.isBusinessUser = true;
+                }
               }
             }
           })
@@ -464,10 +472,6 @@
       onImageChange: function(event) {
         var buffer;
         this.selectedImage = event.target.files[0];
-      },
-      ratingUpdate: function(index) {
-        this.whiteStars = index;
-        this.greyStars = 5 - index;
       }
     }
   }

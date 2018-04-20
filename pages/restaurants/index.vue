@@ -60,16 +60,13 @@
                 <span class="grey--text">{{item.location}}</span>
                 <br/>
                 <span class="grey--text" v-for="cuisine in item.cuisine" :key="cuisine">{{cuisine + ' '}}</span>
-                <br/>
-                <br/>
-                <v-icon v-for="i in item.rating" :key="i">star</v-icon>
               </div>
 
             </v-card-title>
             <v-card-actions>
-              <v-btn flat>Share</v-btn>
+              <v-btn @click="rateTitle = item.title; rateDialog = true;" v-if="$store.state.loggedIn" flat> Review </v-btn>
               <nuxt-link :to="'/restaurants/' + identify(item.title)">
-                <v-btn flat color="primary">Details</v-btn>
+                <v-btn flat color="primary"> Details </v-btn>
               </nuxt-link>
               <v-spacer></v-spacer>
             </v-card-actions>
@@ -78,6 +75,40 @@
       </v-layout>
     </v-container>
   </section>
+  <v-dialog v-model="rateDialog" max-width="800">
+    <v-card>
+      <v-card-title>
+        <span class="headline">Provide Review</span>
+      </v-card-title>
+      <v-card-text>
+        <v-container grid-list-md>
+          <v-layout row wrap>
+            <v-flex xs12>
+              <p>Select Rating</p>
+              <v-icon v-for="i in rateRating" :key="i">star</v-icon>
+              <v-slider v-model="rateRating" min="1" max="5" thumb-label step="1" ticks></v-slider>
+            </v-flex>
+            <v-flex xs12>
+              <v-card-text>
+                <v-container fluid>
+                  <v-layout row>
+                    <v-flex xs12>
+                      <v-text-field label="Review" v-model="rateReview" textarea></v-text-field>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-card-text>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" flat @click="rateDialog = false">Cancel</v-btn>
+        <v-btn color="primary" flat @click="rate">Submit</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </v-content>
 </template>
 
@@ -88,6 +119,10 @@ var camelCase = require('camel-case');
 export default {
   data() {
     return {
+      rateDialog: false,
+      rateTitle: '',
+      rateRating: 1,
+      rateReview: '',
       restaurants: [],
       filteredRestaurants: [],
       search: '',
@@ -130,6 +165,27 @@ export default {
     },
     identify: function(str) {
       return camelCase(str);
+    },
+    rate: function() {
+      var fd = {
+        title: this.rateTitle,
+        user: this.$store.state.username,
+        rating: this.rateRating,
+        review: this.rateReview
+      };
+
+      axios.post('http://127.0.0.1:3000/addRestaurantRating', fd).then((res) => {
+        console.log(res.status);
+
+        if (res.data.message != null) {
+          if (res.data.message.toLowerCase().indexOf('error') !== -1) {
+            this.errorMessage = res.data.obj.message;
+            this.errorflag = true;
+          }
+        }
+
+        this.rateDialog = false;
+      });
     }
   }
 };

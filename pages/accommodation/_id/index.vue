@@ -59,7 +59,7 @@ export default {
   background-position: 50% 50%;
 }
 
-.card {
+#details .card {
   background-color: #333333EE !important;
 }
 </style>
