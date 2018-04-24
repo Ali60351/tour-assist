@@ -27,6 +27,16 @@
             mauris orci, aliquet et, iaculis et, viverra vitae, ligula. Nulla ut felis in purus aliquam imperdiet. </p>
         </v-card-text>
       </v-card>
+      <br/>
+      <v-card flat v-for="item in reviews" :key="item.user">
+        <v-card-text>
+          <p>{{item.user}}</p>
+          <v-icon v-for="i in item.rating" :key="i">star</v-icon>
+          <br/>
+          <br/>
+          <p>{{item.review}}</p>
+        </v-card-text>
+      </v-card>
     </v-container>
   </section>
 </v-content>
@@ -42,7 +52,28 @@ export default {
       axios
         .get(url)
         .then(res => {
-          resolve(res.data);
+          var fd = {
+            title: res.data.title
+          }
+
+          axios.post('http://127.0.0.1:3000/getAccomodationRating', fd).then((resx) => {
+            res.data.reviews = resx.data.obj;
+
+            if(resx.data.obj.length > 0)
+            {
+              res.data.rating = 0;
+
+              resx.data.obj.forEach(element => {
+                res.data.rating += element.rating;
+              })
+
+              res.data.rating = res.data.rating / resx.data.obj.length;
+            }
+
+            resolve(res.data);
+          }).catch(errx => {
+            reject(errx)
+          });
         })
         .catch(err => {
           reject(err);
