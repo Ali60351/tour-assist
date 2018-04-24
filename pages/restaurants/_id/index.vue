@@ -57,6 +57,18 @@ export default {
 
           axios.post('http://127.0.0.1:3000/getRestaurantRating', fd).then((resx) => {
             res.data.reviews = resx.data.obj;
+
+            if(resx.data.obj.length > 0)
+            {
+              res.data.rating = 0;
+
+              resx.data.obj.forEach(element => {
+                res.data.rating += element.rating;
+              })
+
+              res.data.rating = res.data.rating / resx.data.obj.length;
+            }
+
             resolve(res.data);
           }).catch(errx => {
             reject(errx)
