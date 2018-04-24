@@ -109,7 +109,6 @@
                   </div>
                 </v-card-title>
                 <v-card-actions>
-                  <v-btn flat>Share</v-btn>
                   <nuxt-link :to="'/travel/' + identify(item.title)">
                     <v-btn flat color="primary">Details</v-btn>
                   </nuxt-link>
