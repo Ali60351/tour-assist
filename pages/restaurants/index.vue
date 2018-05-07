@@ -171,7 +171,8 @@ export default {
         title: this.rateTitle,
         user: this.$store.state.username,
         rating: this.rateRating,
-        review: this.rateReview
+        review: this.rateReview,
+        userid: this.$store.state.userid
       };
 
       axios.post('http://127.0.0.1:3000/addRestaurantRating', fd).then((res) => {

@@ -5,16 +5,24 @@ const bindUser = () => {
     state: {
       username: 'ali60351@gmail.com',
       loggedIn: true,
+      userid: '',
+      friends: []
     },
     mutations: {
-      update (state, text) {
+      update(state, text) {
         state.username = text;
       },
-      setLogin (state) {
+      setLogin(state) {
         state.loggedIn = true;
       },
-      unsetLogin (state) {
+      unsetLogin(state) {
         state.loggedIn = false;
+      },
+      setID(state, id) {
+        state.userid = id;
+      },
+      setFriends(state, list) {
+        state.friends = list;
       }
     }
   })

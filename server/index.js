@@ -3,7 +3,10 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-const { Nuxt, Builder } = require('nuxt');
+const {
+  Nuxt,
+  Builder
+} = require('nuxt');
 const app = express();
 const host = process.env.HOST || '127.0.0.1';
 const port = process.env.PORT || 3000;
@@ -16,8 +19,12 @@ const restaurant = require('./controllers/restaurant.js');
 const travel = require('./controllers/travel.js');
 const image = require('./controllers/image.js');
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+app.use(bodyParser.json({
+  limit: '50mb'
+}));
 app.set('port', port);
 
 // Import and Set Nuxt.js options
@@ -53,7 +60,10 @@ app.post('/test', (req, res) => {
     res.json({});
   }).catch(err => {
     res.status = 401;
-    res.json({message: 'Error uploading image', obj: err});
+    res.json({
+      message: 'Error uploading image',
+      obj: err
+    });
   });
 });
 
@@ -85,8 +95,9 @@ app.post('/addRestaurantRating', (req, res) => {
   var user = req.body.user;
   var rating = req.body.rating;
   var review = req.body.review;
+  var userid = req.body.userid;
 
-  model.addRestaurantRating(title, user, rating, review)
+  model.addRestaurantRating(title, user, rating, review, userid)
   .then((result) => {
       res.status = 200;
       res.json({
@@ -107,20 +118,20 @@ app.post('/getRestaurantRating', (req, res) => {
   var title = req.body.title;
 
   model.getRestaurantRating(title)
-  .then((result) => {
+    .then((result) => {
       res.status = 200;
       res.json({
-          'message': 'Added Successfully',
-          'obj': result
+        'message': 'Added Successfully',
+        'obj': result
       });
-  })
-  .catch((err) => {
+    })
+    .catch((err) => {
       res.status = 777;
       res.json({
-          'message': 'Error Adding',
-          'obj': err
+        'message': 'Error Adding',
+        'obj': err
       });
-  });
+    });
 });
 
 app.post('/addAccomodationRating', (req, res) => {
@@ -130,40 +141,64 @@ app.post('/addAccomodationRating', (req, res) => {
   var review = req.body.review;
 
   model.addAccomodationRating(title, user, rating, review)
-  .then((result) => {
+    .then((result) => {
       res.status = 200;
       res.json({
-          'message': 'Added Successfully',
-          'obj': result
+        'message': 'Added Successfully',
+        'obj': result
       });
-  })
-  .catch((err) => {
+    })
+    .catch((err) => {
       res.status = 777;
       res.json({
-          'message': 'Error Adding',
-          'obj': err
+        'message': 'Error Adding',
+        'obj': err
       });
-  });
+    });
 });
 
 app.post('/getAccomodationRating', (req, res) => {
   var title = req.body.title;
 
   model.getAccomodationRating(title)
-  .then((result) => {
+    .then((result) => {
       res.status = 200;
       res.json({
-          'message': 'Added Successfully',
-          'obj': result
+        'message': 'Added Successfully',
+        'obj': result
       });
-  })
-  .catch((err) => {
+    })
+    .catch((err) => {
       res.status = 777;
       res.json({
-          'message': 'Error Adding',
-          'obj': err
+        'message': 'Error Adding',
+        'obj': err
       });
-  });
+    });
+});
+
+app.post('/addFacebookUser', (req, res) => {
+  var userid = req.body.userid;
+  var email = req.body.email;
+  var name = req.body.name;
+  var accessToken = req.body.accessToken;
+  var friends = req.body.friends;
+
+  model.addFacebookUser(userid, email, name, accessToken, friends)
+    .then((result) => {
+      res.status = 200;
+      res.json({
+        'message': 'Added Successfully',
+        'obj': result
+      });
+    })
+    .catch((err) => {
+      res.status = 777;
+      res.json({
+        'message': 'Error Adding',
+        'obj': err
+      });
+    });
 });
 
 start();

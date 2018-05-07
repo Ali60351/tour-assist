@@ -29,7 +29,10 @@
       <br/>
       <v-card flat v-for="item in reviews" :key="item.user">
         <v-card-text>
-          <p>{{item.user}}</p>
+          <p>
+            {{item.user}}
+            <v-icon v-if="$store.state.friends.includes(item.userid) && typeof(item.userid) !== 'undefined'">people</v-icon>
+          </p>
           <v-icon v-for="i in item.rating" :key="i">star</v-icon>
           <br/>
           <br/>

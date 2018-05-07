@@ -49,7 +49,7 @@
         <v-btn slot="activator" flat>
           <v-icon left dark>person</v-icon>{{ username }}</v-btn>
         <v-list>
-          <v-list-tile @click="loggedIn = false; isBusinessUser = false; $store.commit('unsetLogin');">
+          <v-list-tile @click="logOut()">
             <v-icon style="margin-right: 10px" dark>cloud_off</v-icon>
             <v-list-tile-title>Log Out</v-list-tile-title>
           </v-list-tile>
@@ -68,7 +68,7 @@
     </v-list>
   </v-navigation-drawer>
   <nuxt />
-  <v-dialog v-model="loginDialog" max-width="290">
+  <v-dialog v-model="loginDialog" max-width="400">
     <v-card>
       <v-card-title>
         <span class="headline">Login</span>
@@ -76,6 +76,12 @@
       <v-card-text>
         <v-container grid-list-md>
           <v-layout row wrap>
+            <v-flex xs12>
+              <v-btn fab dark large color="purple" @click="signInWithFacebook">
+                <v-icon>fas fa-facebook-f</v-icon>
+              </v-btn>
+              <span class="headline">Connect with Facebook</span>
+            </v-flex>
             <v-flex xs12>
               <v-text-field v-model="loginEmail" label="Email" required></v-text-field>
             </v-flex>
@@ -257,6 +263,8 @@
 
 <script>
 var axios = require('axios');
+var clientAccount = require('../server/models/tour-assist-client.json');
+var firebase = require('firebase');
 
 export default {
   data() {
@@ -323,7 +331,12 @@ export default {
       addAccomodationPrice: '',
       AccomodationTypes: ['Hotel', 'Rental House'],
       cuisine: ['Italian', 'Thai', 'Japanese'],
-      e1: []
+      e1: [],
+      businessUsers: ['ali60351@gmail.com'],
+      withFacebook: false,
+      appInitialized: false,
+      friendsList: [],
+      total_friends: 0
     }
   },
   methods: {
@@ -368,15 +381,141 @@ export default {
             this.loggedIn = true;
             this.username = this.loginEmail;
             this.loginDialog = false;
+
             this.$store.commit('update', this.loginEmail);
+            this.$store.commit('setID', 0);
             this.$store.commit('setLogin');
 
-            if (this.loginEmail == 'ali60351@gmail.com') {
+            if (this.businessUsers.includes(this.loginEmail)) {
               this.isBusinessUser = true;
             }
           }
         }
       })
+    },
+    promisesignInWithFacebook: function() {
+      if (!this.appInitialized) {
+        var config = clientAccount;
+        firebase.initializeApp(config);
+        this.appInitialized = true;
+      }
+
+      var provider = new firebase.auth.FacebookAuthProvider();
+      provider.addScope('user_friends'); // need the list of friends to get their reviews and rating on our app
+
+      return new Promise((resolve, reject) => {
+        firebase.auth().signInWithPopup(provider).then(function(result) {
+          // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+          // var token = result.credential.accessToken;
+          // The signed-in user info.
+          // var user = result.user;
+          // // ...
+
+          // console.log(token);
+          // console.log(user);
+          resolve(result);
+        }).catch(function(error) {
+          // // Handle Errors here.
+          // var errorCode = error.code;
+          // var errorMessage = error.message;
+          // // The email of the user's account used.
+          // var email = error.email;
+          // // The firebase.auth.AuthCredential type that was used.
+          // var credential = error.credential;
+          // // ...
+          reject(error);
+          // reject(errorCode + errorMessage + email + credential);
+        });
+      });
+    },
+    signInWithFacebook: function() {
+      this.promisesignInWithFacebook()
+        .then((res) => {
+
+          var token = res.credential.accessToken;
+          var user = res.user;
+          var userInfo = res.additionalUserInfo.profile;
+
+          this.loggedIn = true;
+          this.username = user.displayName;
+          this.loginDialog = false;
+          this.withFacebook = true;
+
+          this.$store.commit('update', user.displayName);
+          this.$store.commit('setID', userInfo.id);
+          this.$store.commit('setLogin');
+          if (this.businessUsers.includes(user.email)) {
+            // console.log("Business User");
+            this.isBusinessUser = true;
+          } else {
+            // console.log("Normal User");
+          }
+
+          // console.log(token);
+          // console.log(user);
+          // console.log(userInfo);
+
+          var id = userInfo.id;
+          axios.get('https://graph.facebook.com/v3.0/' + id + '/friends?access_token=' + token)
+            .then((result) => {
+              // console.log(result);
+              // this.friendsList = result.data.data;
+              result.data.data.forEach(element => {
+                this.friendsList.push(element.id)
+              });
+              this.total_friends = result.data.summary.total_count;
+
+              console.log("Friend List with our App");
+              console.log(this.friendsList);
+
+              this.$store.commit('setFriends', this.friendsList);
+              console.log(this.total_friends);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+
+          // console.log(this.friendsList);
+          // console.log(this.total_friends);
+          var obj = {
+            userid: userInfo.id,
+            email: userInfo.email,
+            name: userInfo.name,
+            accessToken: token,
+            friends: this.friendsList
+          }
+          console.log("Object");
+          console.log(obj);
+
+          axios.post('http://127.0.0.1:3000/addFacebookUser', obj).then((resc) => {
+              console.log(resc);
+            })
+            .catch((errc) => {
+              console.log(errc);
+            });
+
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+    },
+    signOutWithFacebook: function() {
+      firebase.auth().signOut().then(function() {
+        console.log("Signed Out Successfully");
+      }).catch(function(error) {
+        // An error happened.
+        console.log(error);
+      });
+    },
+    logOut: function() {
+      if (this.withFacebook) {
+        this.withFacebook = false;
+        this.signOutWithFacebook();
+      }
+
+      this.loggedIn = false;
+      this.isBusinessUser = false;
+      this.$store.commit('unsetLogin');
     },
     readFile: function() {
       return new Promise((resolve, reject) => {
